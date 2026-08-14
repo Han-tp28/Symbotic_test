@@ -1,0 +1,18 @@
+keyboard_teleop:
+  ros__parameters:
+    linear_speed: 2.0
+    angular_speed: 1.5
+    key_timeout: 0.70
+    publish_rate: 20.0
+    manual_topic: /cmd_vel/manual
+    emergency_stop_topic: /emergency_stop
+
+command_arbiter:
+  ros__parameters:
+    output_rate: 20.0
+    manual_timeout: 0.80
+    autonomous_timeout: 0.50
+    manual_topic: /cmd_vel/manual
+    autonomous_topic: /cmd_vel/autonomous
+    output_topic: /cmd_vel
+    emergency_stop_topic: /emergency_stop

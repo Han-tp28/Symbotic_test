@@ -89,6 +89,41 @@ source install/setup.bash
 If Conda is active and reports an `_rclpy_pybind11` Python-version error, run
 `conda deactivate` before sourcing ROS 2.
 
+ROS 2 Jazzy on Ubuntu 24.04 uses the system Python 3.12. Do not build this
+workspace with a uv-managed Python 3.10, virtualenv, or another Python placed
+ahead of `/usr/bin` in `PATH`; `rosidl_adapter` may then fail with
+`ModuleNotFoundError: No module named 'em'`. Verify the interpreter before
+building:
+
+```bash
+unset PYTHONHOME PYTHONPATH Python3_EXECUTABLE PYTHON_EXECUTABLE
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+hash -r
+source /opt/ros/jazzy/setup.bash
+
+which python3
+python3 --version
+python3 -c "import em; print(em.__file__)"
+```
+
+The expected interpreter is `/usr/bin/python3` with Python 3.12, and the
+`em` module should be available from the system ROS/Python installation. If a
+previous build used the wrong interpreter, remove only the generated build
+artifacts and rebuild with the system Python explicitly:
+
+```bash
+rm -rf build install log
+rosdep install --from-paths src --ignore-src -r -y --skip-keys ament_python
+colcon build --symlink-install \
+  --cmake-args \
+  -DPython3_EXECUTABLE=/usr/bin/python3 \
+  -DPYTHON_EXECUTABLE=/usr/bin/python3
+source install/setup.bash
+```
+
+The `ament_python` rosdep message is a harmless unresolved build-tool key on
+some installations; `--skip-keys ament_python` suppresses that message.
+
 ## Control architecture
 
 ```text

@@ -31,6 +31,13 @@ The project was developed and tested in this environment. A Docker installation
 based on `ros:jazzy-ros-base` may also be used, but Docker files are not required
 to run or evaluate the source code.
 
+## Video demonstration
+
+The repository includes a short video showing the build, one-command backend
+launch, keyboard teleoperation, and Go-To-Goal workflow:
+
+[Watch the Symbotic demo video](docs/symbotic.mp4)
+
 ## Workspace layout
 
 ```text

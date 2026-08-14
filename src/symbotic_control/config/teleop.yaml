@@ -14,5 +14,18 @@ command_arbiter:
     autonomous_timeout: 0.50
     manual_topic: /cmd_vel/manual
     autonomous_topic: /cmd_vel/autonomous
-    output_topic: /cmd_vel
+    output_topic: /cmd_vel/target
     emergency_stop_topic: /emergency_stop
+
+velocity_limiter:
+  ros__parameters:
+    input_topic: /cmd_vel/target
+    output_topic: /cmd_vel
+    update_rate: 100.0
+    input_timeout: 0.50
+    max_velocity: 5.0
+    max_acceleration: 1.2
+    max_deceleration: 6.0
+    max_angular_velocity: 3.0
+    max_angular_acceleration: 3.0
+    max_angular_deceleration: 6.0

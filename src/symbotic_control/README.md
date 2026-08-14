@@ -15,6 +15,19 @@ PARAMS="$(ros2 pkg prefix symbotic_control)/share/symbotic_control/config/teleop
 ros2 run symbotic_control command_arbiter --ros-args --params-file "$PARAMS"
 ```
 
+The simulation launch automatically starts `velocity_limiter`. The command
+path is:
+
+```text
+keyboard/autonomous -> command_arbiter (/cmd_vel/target)
+                   -> velocity_limiter (/cmd_vel)
+                   -> ros_gz_bridge -> Gazebo
+```
+
+The limiter enforces `max_velocity=5.0 m/s`, `max_acceleration=1.2 m/s^2`, and
+`max_deceleration=6.0 m/s^2`. It reaches 5 m/s from standstill in about 4.17 s
+and brakes from 5 m/s to zero in about 0.83 s.
+
 Start keyboard input in terminal 3:
 
 ```bash

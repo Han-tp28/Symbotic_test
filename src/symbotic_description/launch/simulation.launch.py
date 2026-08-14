@@ -13,6 +13,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def _launch_setup(context):
     package_share = get_package_share_directory('symbotic_description')
+    control_share = get_package_share_directory('symbotic_control')
     config_file = LaunchConfiguration('config_file').perform(context)
     world_file = LaunchConfiguration('world').perform(context)
     world_name = LaunchConfiguration('world_name').perform(context)
@@ -96,7 +97,15 @@ def _launch_setup(context):
         }],
     )
 
-    return [gazebo, robot_state_publisher, spawn_robot, bridge]
+    velocity_limiter = Node(
+        package='symbotic_control',
+        executable='velocity_limiter',
+        name='velocity_limiter',
+        output='screen',
+        parameters=[os.path.join(control_share, 'config', 'teleop.yaml')],
+    )
+
+    return [gazebo, robot_state_publisher, spawn_robot, velocity_limiter, bridge]
 
 
 def generate_launch_description():

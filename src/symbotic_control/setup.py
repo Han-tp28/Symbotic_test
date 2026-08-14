@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'command_arbiter = symbotic_control.command_arbiter:main',
             'keyboard_teleop = symbotic_control.keyboard_teleop:main',
+            'velocity_limiter = symbotic_control.velocity_limiter:main',
         ],
     },
 )

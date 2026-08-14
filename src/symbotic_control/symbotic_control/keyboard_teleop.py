@@ -9,8 +9,8 @@ import time
 import tty
 from typing import Optional
 
-import rclpy
 from geometry_msgs.msg import Twist
+import rclpy
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from rclpy.signals import SignalHandlerOptions

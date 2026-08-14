@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'command_arbiter = symbotic_control.command_arbiter:main',
+            'go_to_goal_server = symbotic_control.go_to_goal_server:main',
             'keyboard_teleop = symbotic_control.keyboard_teleop:main',
             'velocity_limiter = symbotic_control.velocity_limiter:main',
         ],

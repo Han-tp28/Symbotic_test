@@ -67,3 +67,34 @@ always overrides `/cmd_vel/autonomous`.
 Linear and angular key states have independent timeouts. While a movement key
 and a steering key are active together, the node publishes both `linear.x` and
 `angular.z` in the same `Twist` command.
+
+## Go-to-goal action
+
+Start the action server in another terminal:
+
+```bash
+PARAMS="$(ros2 pkg prefix symbotic_control)/share/symbotic_control/config/teleop.yaml"
+ros2 run symbotic_control go_to_goal_server --ros-args --params-file "$PARAMS"
+```
+
+With the command arbiter running as shown above, send a target coordinate in
+the odom frame from another terminal:
+
+```bash
+ros2 action send_goal /go_to_goal symbotic_interfaces/action/GoToGoal \
+  "{x: 2.0, y: 1.0, tolerance: 0.15, timeout_sec: 30.0}" --feedback
+```
+
+The server publishes autonomous commands on `/cmd_vel/autonomous`; fresh
+keyboard input therefore retains priority. Feedback contains current `(x, y)`,
+distance remaining, heading error and elapsed time. The goal succeeds only when
+the remaining distance is within tolerance. Invalid goals are rejected, and
+cancel, timeout, stale odometry or shutdown all publish a zero command.
+
+Useful inspection commands:
+
+```bash
+ros2 action list -t
+ros2 action info /go_to_goal
+ros2 topic echo /cmd_vel/autonomous
+```

@@ -23,3 +23,16 @@ velocity_limiter:
     output_topic: /cmd_vel
     update_rate: 100.0
     input_timeout: 0.50
+
+go_to_goal_server:
+  ros__parameters:
+    action_name: /go_to_goal
+    odom_topic: /odom
+    command_topic: /cmd_vel/autonomous
+    control_rate: 20.0
+    odom_timeout: 1.0
+    linear_gain: 1.0
+    angular_gain: 2.5
+    max_linear_speed: 2.0
+    max_angular_speed: 1.5
+    rotate_in_place_angle: 0.60

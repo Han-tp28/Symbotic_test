@@ -36,6 +36,7 @@ to run or evaluate the source code.
 ```text
 Symbotic_test/
 ├── src/
+│   ├── diff_drive_robot/       # One-command complete demo bringup
 │   ├── symbotic_description/   # Xacro, URDF, YAML, Gazebo world and launch
 │   ├── symbotic_interfaces/    # GoToGoal.action
 │   └── symbotic_control/       # Teleop, arbiter, limiter and action server
@@ -108,39 +109,29 @@ go_to_goal      -- /cmd_vel/autonomous --+--> command_arbiter
 /emergency_stop -------- highest priority ---------^
 ```
 
-The simulation launch starts Gazebo, robot state publishing, the ROS-Gazebo
-bridge, and `velocity_limiter`. Start `command_arbiter` separately for both
-manual and autonomous control.
+The demo launch starts the complete backend: Gazebo, robot state publishing,
+the ROS-Gazebo bridge, `velocity_limiter`, `command_arbiter`, and the
+Go-To-Goal action server. Keyboard input remains separate because it requires
+direct access to terminal stdin.
 
 ## Run keyboard teleoperation
 
-### Terminal 1: simulation
+### Terminal 1: complete backend
 
 ```bash
 cd /path/to/Symbotic_test
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
-ros2 launch symbotic_description simulation.launch.py
+ros2 launch diff_drive_robot demo.launch.py
 ```
 
 Use `headless:=true` to run without the Gazebo GUI:
 
 ```bash
-ros2 launch symbotic_description simulation.launch.py headless:=true
+ros2 launch diff_drive_robot demo.launch.py headless:=true
 ```
 
-### Terminal 2: command arbiter
-
-```bash
-cd /path/to/Symbotic_test
-source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-
-PARAMS="$(ros2 pkg prefix symbotic_control)/share/symbotic_control/config/teleop.yaml"
-ros2 run symbotic_control command_arbiter --ros-args --params-file "$PARAMS"
-```
-
-### Terminal 3: keyboard input
+### Terminal 2: keyboard input
 
 ```bash
 cd /path/to/Symbotic_test
@@ -170,20 +161,10 @@ goal.
 
 ## Run Go-To-Goal
 
-Keep the simulation and command arbiter from Terminals 1 and 2 running.
+Keep the complete backend from Terminal 1 running. The Go-To-Goal action server
+is already included in `demo.launch.py`.
 
-### Terminal 3: action server
-
-```bash
-cd /path/to/Symbotic_test
-source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-
-PARAMS="$(ros2 pkg prefix symbotic_control)/share/symbotic_control/config/teleop.yaml"
-ros2 run symbotic_control go_to_goal_server --ros-args --params-file "$PARAMS"
-```
-
-### Terminal 4: send a goal
+### Terminal 2: send a goal
 
 ```bash
 cd /path/to/Symbotic_test
@@ -247,7 +228,7 @@ regenerate and Gazebo can respawn the rigid bodies:
 ```bash
 colcon build --symlink-install --packages-select symbotic_description
 source install/setup.bash
-ros2 launch symbotic_description simulation.launch.py
+ros2 launch diff_drive_robot demo.launch.py
 ```
 
 Controller limits can be inspected or changed while the simulation is running:
@@ -353,8 +334,9 @@ source /path/to/Symbotic_test/install/setup.bash
 
 ### Go-To-Goal publishes feedback but the robot does not move
 
-Confirm that `command_arbiter` is running. The action server intentionally
-publishes to `/cmd_vel/autonomous`, not directly to Gazebo.
+Confirm that the complete demo launch is still running and that
+`command_arbiter` is listed. The action server intentionally publishes to
+`/cmd_vel/autonomous`, not directly to Gazebo.
 
 ```bash
 ros2 node list
@@ -368,7 +350,7 @@ Verify that Gazebo Harmonic and `ros_gz` are installed, or run the server-only
 simulation:
 
 ```bash
-ros2 launch symbotic_description simulation.launch.py headless:=true
+ros2 launch diff_drive_robot demo.launch.py headless:=true
 ```
 
 ## Scope

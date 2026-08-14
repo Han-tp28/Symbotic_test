@@ -43,6 +43,26 @@ def command_for_key(
     return commands.get(normalized)
 
 
+def updated_command_for_key(
+    key: str,
+    current_linear_x: float,
+    current_angular_z: float,
+    linear_speed: float,
+    angular_speed: float,
+) -> Optional[tuple[float, float]]:
+    """Update only the velocity axis controlled by ``key``.
+
+    Keeping the other axis allows forward/backward and steering keys to form
+    one combined Twist command, for example W+A -> forward-left arc.
+    """
+    key_command = command_for_key(key, linear_speed, angular_speed)
+    if key_command is None:
+        return None
+    if key_command[0] != 0.0:
+        return key_command[0], current_angular_z
+    return current_linear_x, key_command[1]
+
+
 def read_key(timeout: float) -> Optional[str]:
     """Read one terminal key, including a complete arrow-key sequence."""
     readable, _, _ = select.select([sys.stdin], [], [], timeout)
@@ -128,8 +148,8 @@ class KeyboardTeleop(Node):
 
         self._linear_x = 0.0
         self._angular_z = 0.0
-        self._active_until = 0.0
-        self._command_active = False
+        self._linear_active_until = 0.0
+        self._angular_active_until = 0.0
         self._emergency_stop = False
 
         self.publish_emergency_stop(False)
@@ -158,17 +178,28 @@ class KeyboardTeleop(Node):
             self.get_logger().warn('Emergency stop enabled. Press a movement key to clear it.')
             return True
 
-        command = command_for_key(key, self.linear_speed, self.angular_speed)
-        if command is None:
+        key_command = command_for_key(key, self.linear_speed, self.angular_speed)
+        if key_command is None:
             return True
 
         if self._emergency_stop:
             self.publish_emergency_stop(False)
             self.get_logger().info('Emergency stop cleared by manual input.')
 
-        self._linear_x, self._angular_z = command
-        self._active_until = time.monotonic() + self.key_timeout
-        self._command_active = True
+        updated_command = updated_command_for_key(
+            key,
+            self._linear_x,
+            self._angular_z,
+            self.linear_speed,
+            self.angular_speed,
+        )
+        self._linear_x, self._angular_z = updated_command
+
+        active_until = time.monotonic() + self.key_timeout
+        if key_command[0] != 0.0:
+            self._linear_active_until = active_until
+        else:
+            self._angular_active_until = active_until
         self.publish_command(self._linear_x, self._angular_z)
         return True
 
@@ -178,20 +209,23 @@ class KeyboardTeleop(Node):
             self.publish_command(0.0, 0.0)
             return
 
-        if self._command_active and time.monotonic() > self._active_until:
+        now = time.monotonic()
+        command_changed = False
+        if self._linear_x != 0.0 and now > self._linear_active_until:
             self._linear_x = 0.0
+            command_changed = True
+        if self._angular_z != 0.0 and now > self._angular_active_until:
             self._angular_z = 0.0
-            self._command_active = False
-            self.publish_command(0.0, 0.0)
-            return
+            command_changed = True
 
-        if self._command_active:
+        if self._linear_x != 0.0 or self._angular_z != 0.0 or command_changed:
             self.publish_command(self._linear_x, self._angular_z)
 
     def stop(self, latch_emergency: bool) -> None:
         self._linear_x = 0.0
         self._angular_z = 0.0
-        self._command_active = False
+        self._linear_active_until = 0.0
+        self._angular_active_until = 0.0
         self.publish_command(0.0, 0.0)
         if latch_emergency:
             self.publish_emergency_stop(True)
@@ -202,8 +236,9 @@ Keyboard teleoperation
 ----------------------
 Hold W / Up Arrow       : move forward
 Hold S / Down Arrow     : move backward
-Hold A / Left Arrow     : rotate left
-Hold D / Right Arrow    : rotate right
+Hold A / Left Arrow     : steer left
+Hold D / Right Arrow    : steer right
+Combine move + steer    : drive along a curved path
 Space                   : latched emergency stop
 Q                       : stop and quit
 

@@ -26,11 +26,16 @@ Controls:
 
 - Hold `W` or Up Arrow: move forward.
 - Hold `S` or Down Arrow: move backward.
-- Hold `A` or Left Arrow: rotate left.
-- Hold `D` or Right Arrow: rotate right.
+- Hold `A` or Left Arrow: steer left.
+- Hold `D` or Right Arrow: steer right.
+- Combine `W/S` with `A/D` (or arrow equivalents): drive along a curved path.
 - Press Space: latch emergency stop.
 - Press a movement key: clear emergency stop and take manual control.
 - Press `Q`: stop and exit.
 
 The arbiter publishes zero when all command sources time out. Fresh manual input
 always overrides `/cmd_vel/autonomous`.
+
+Linear and angular key states have independent timeouts. While a movement key
+and a steering key are active together, the node publishes both `linear.x` and
+`angular.z` in the same `Twist` command.

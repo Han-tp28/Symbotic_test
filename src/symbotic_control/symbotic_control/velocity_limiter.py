@@ -6,8 +6,10 @@ import time
 from typing import Optional
 
 from geometry_msgs.msg import Twist
+from rcl_interfaces.msg import SetParametersResult
 import rclpy
 from rclpy.node import Node
+from rclpy.parameter import Parameter
 from rclpy.signals import SignalHandlerOptions
 
 
@@ -94,7 +96,60 @@ class VelocityLimiter(Node):
         self._current_angular = 0.0
         self._last_input_at = float('-inf')
         self._last_update_at = time.monotonic()
+        self.add_on_set_parameters_callback(self._on_parameters_changed)
         self.create_timer(1.0 / self.update_rate, self._update)
+
+    def _on_parameters_changed(
+        self,
+        parameters: list[Parameter],
+    ) -> SetParametersResult:
+        runtime_parameters = {
+            'input_timeout': 'input_timeout',
+            'max_velocity': 'max_velocity',
+            'max_acceleration': 'max_acceleration',
+            'max_deceleration': 'max_deceleration',
+            'max_angular_velocity': 'max_angular_velocity',
+            'max_angular_acceleration': 'max_angular_acceleration',
+            'max_angular_deceleration': 'max_angular_deceleration',
+        }
+        restart_parameters = {'input_topic', 'output_topic', 'update_rate'}
+        updates: dict[str, float] = {}
+
+        for parameter in parameters:
+            if parameter.name in restart_parameters:
+                return SetParametersResult(
+                    successful=False,
+                    reason=f'{parameter.name} requires restarting the node.',
+                )
+            attribute = runtime_parameters.get(parameter.name)
+            if attribute is None:
+                continue
+            if isinstance(parameter.value, bool) or not isinstance(
+                parameter.value,
+                (int, float),
+            ):
+                return SetParametersResult(
+                    successful=False,
+                    reason=f'{parameter.name} must be numeric.',
+                )
+            if parameter.value <= 0.0:
+                return SetParametersResult(
+                    successful=False,
+                    reason=f'{parameter.name} must be positive.',
+                )
+            updates[attribute] = float(parameter.value)
+
+        for attribute, value in updates.items():
+            setattr(self, attribute, value)
+        self._target_linear = bounded_target(
+            self._target_linear,
+            self.max_velocity,
+        )
+        self._target_angular = bounded_target(
+            self._target_angular,
+            self.max_angular_velocity,
+        )
+        return SetParametersResult(successful=True)
 
     def _on_target(self, message: Twist) -> None:
         self._target_linear = bounded_target(message.linear.x, self.max_velocity)

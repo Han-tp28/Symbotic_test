@@ -9,12 +9,16 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+import yaml
 
 
 def _launch_setup(context):
     package_share = get_package_share_directory('symbotic_description')
     control_share = get_package_share_directory('symbotic_control')
     config_file = LaunchConfiguration('config_file').perform(context)
+    with open(config_file, encoding='utf-8') as stream:
+        robot_config = yaml.safe_load(stream)
+    controller_config = robot_config['robot']['controller']
     world_file = LaunchConfiguration('world').perform(context)
     world_name = LaunchConfiguration('world_name').perform(context)
     model_name = LaunchConfiguration('model_name').perform(context)
@@ -102,7 +106,10 @@ def _launch_setup(context):
         executable='velocity_limiter',
         name='velocity_limiter',
         output='screen',
-        parameters=[os.path.join(control_share, 'config', 'teleop.yaml')],
+        parameters=[
+            os.path.join(control_share, 'config', 'teleop.yaml'),
+            controller_config,
+        ],
     )
 
     return [gazebo, robot_state_publisher, spawn_robot, velocity_limiter, bridge]
@@ -114,7 +121,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'config_file',
-            default_value=os.path.join(package_share, 'config', 'robot.yaml'),
+            default_value=os.path.join(package_share, 'config', 'robot_params.yaml'),
             description='Robot physical-parameter YAML file.',
         ),
         DeclareLaunchArgument(

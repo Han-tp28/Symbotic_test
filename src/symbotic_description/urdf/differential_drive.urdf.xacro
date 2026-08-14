@@ -2,14 +2,14 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="symbotic_diff_drive">
   <xacro:arg
     name="config_file"
-    default="$(find symbotic_description)/config/robot.yaml"/>
+    default="$(find symbotic_description)/config/robot_params.yaml"/>
 
-  <!-- Keep all dimensions and masses in robot.yaml. -->
+  <!-- Keep geometry, dynamics and limits in robot_params.yaml. -->
   <xacro:property name="config_file" value="$(arg config_file)"/>
   <xacro:property name="config" value="${xacro.load_yaml(config_file)}"/>
   <xacro:property name="geometry" value="${config['robot']['geometry']}"/>
   <xacro:property name="dynamics" value="${config['robot']['dynamics']}"/>
-  <xacro:property name="limits" value="${config['robot']['limits']}"/>
+  <xacro:property name="controller" value="${config['robot']['controller']}"/>
 
   <xacro:property name="track_width" value="${geometry['track_width']}"/>
   <xacro:property name="wheelbase" value="${geometry['wheelbase']}"/>
@@ -189,14 +189,14 @@
       <tf_topic>/tf</tf_topic>
       <child_frame_id>base_footprint</child_frame_id>
       <odom_publish_frequency>50</odom_publish_frequency>
-      <max_linear_velocity>${limits['max_linear_velocity']}</max_linear_velocity>
-      <min_linear_velocity>${-limits['max_linear_velocity']}</min_linear_velocity>
-      <max_angular_velocity>${limits['max_angular_velocity']}</max_angular_velocity>
-      <min_angular_velocity>${-limits['max_angular_velocity']}</min_angular_velocity>
-      <max_linear_acceleration>${limits['max_linear_acceleration']}</max_linear_acceleration>
-      <min_linear_acceleration>${-limits['max_linear_deceleration']}</min_linear_acceleration>
-      <max_angular_acceleration>${limits['max_angular_acceleration']}</max_angular_acceleration>
-      <min_angular_acceleration>${-limits['max_angular_acceleration']}</min_angular_acceleration>
+      <max_linear_velocity>${controller['max_velocity']}</max_linear_velocity>
+      <min_linear_velocity>${-controller['max_velocity']}</min_linear_velocity>
+      <max_angular_velocity>${controller['max_angular_velocity']}</max_angular_velocity>
+      <min_angular_velocity>${-controller['max_angular_velocity']}</min_angular_velocity>
+      <max_linear_acceleration>${controller['max_acceleration']}</max_linear_acceleration>
+      <min_linear_acceleration>${-controller['max_deceleration']}</min_linear_acceleration>
+      <max_angular_acceleration>${controller['max_angular_acceleration']}</max_angular_acceleration>
+      <min_angular_acceleration>${-controller['max_angular_deceleration']}</min_angular_acceleration>
     </plugin>
     <plugin
       filename="gz-sim-joint-state-publisher-system"

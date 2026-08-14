@@ -23,9 +23,3 @@ velocity_limiter:
     output_topic: /cmd_vel
     update_rate: 100.0
     input_timeout: 0.50
-    max_velocity: 5.0
-    max_acceleration: 1.2
-    max_deceleration: 6.0
-    max_angular_velocity: 3.0
-    max_angular_acceleration: 3.0
-    max_angular_deceleration: 6.0

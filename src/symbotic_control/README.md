@@ -28,6 +28,21 @@ The limiter enforces `max_velocity=5.0 m/s`, `max_acceleration=1.2 m/s^2`, and
 `max_deceleration=6.0 m/s^2`. It reaches 5 m/s from standstill in about 4.17 s
 and brakes from 5 m/s to zero in about 0.83 s.
 
+Geometry, dynamics and the initial controller limits are configured in
+`symbotic_description/config/robot_params.yaml`. Geometry changes take effect
+after relaunching the simulation. Controller limits can be inspected and
+changed immediately while the simulation is running:
+
+```bash
+ros2 param get /velocity_limiter max_velocity
+ros2 param set /velocity_limiter max_velocity 3.0
+ros2 param set /velocity_limiter max_acceleration 1.5
+ros2 param set /velocity_limiter max_deceleration 7.0
+```
+
+Only positive values are accepted. Topic names and update rate require a node
+restart; the limiter rejects runtime changes to those parameters explicitly.
+
 Start keyboard input in terminal 3:
 
 ```bash

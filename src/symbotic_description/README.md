@@ -17,7 +17,7 @@ Validate it with:
 check_urdf src/symbotic_description/urdf/naked/symbotic_diff_drive.urdf
 ```
 
-The source of truth remains `config/robot.yaml` and
+The source of truth remains `config/robot_params.yaml` and
 `urdf/differential_drive.urdf.xacro`. Regenerate the plain URDF after changing
 those files with:
 
@@ -44,3 +44,8 @@ ros2 launch symbotic_description simulation.launch.py headless:=true
 
 The launch file exposes `/cmd_vel`, `/odom`, `/tf`, `/joint_states` and
 `/clock` through `ros_gz_bridge`.
+
+Geometry and mass changes in `robot_params.yaml` require relaunching the
+simulation so Xacro can regenerate and respawn the rigid bodies. Controller
+limits from the same file are passed to the velocity limiter and may also be
+changed while it runs with `ros2 param set`.

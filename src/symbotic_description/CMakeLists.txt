@@ -4,7 +4,7 @@ project(symbotic_description)
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY config urdf
+  DIRECTORY config launch urdf worlds
   DESTINATION share/${PROJECT_NAME}
 )
 

@@ -2,7 +2,7 @@ robot:
   geometry:
     # Distance between the left and right drive-wheel contact planes [m].
     track_width: 0.50
-    # Distance from the drive-wheel axle to the rear ball caster [m].
+    # Distance from the drive-wheel axle to each front/rear ball caster [m].
     wheelbase: 0.30
     wheel_radius: 0.15
     wheel_width: 0.06
@@ -15,6 +15,7 @@ robot:
   dynamics:
     chassis_mass: 12.0
     wheel_mass: 1.0
+    # Mass of each ball caster [kg].
     caster_mass: 0.25
 
   limits:
@@ -22,3 +23,4 @@ robot:
     max_angular_velocity: 4.0
     max_linear_acceleration: 1.25
     max_linear_deceleration: 6.0
+    max_angular_acceleration: 6.0

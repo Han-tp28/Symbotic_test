@@ -27,3 +27,20 @@ source install/setup.bash
 xacro src/symbotic_description/urdf/differential_drive.urdf.xacro \
   > src/symbotic_description/urdf/naked/symbotic_diff_drive.urdf
 ```
+
+## Gazebo simulation
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 launch symbotic_description simulation.launch.py
+```
+
+Run without the Gazebo GUI:
+
+```bash
+ros2 launch symbotic_description simulation.launch.py headless:=true
+```
+
+The launch file exposes `/cmd_vel`, `/odom`, `/tf`, `/joint_states` and
+`/clock` through `ros_gz_bridge`.

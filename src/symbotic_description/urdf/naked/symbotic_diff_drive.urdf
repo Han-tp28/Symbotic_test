@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<!-- Generated from urdf/differential_drive.urdf.xacro using config/robot.yaml. -->
+<robot name="symbotic_diff_drive">
+  <link name="base_link">
+    <inertial>
+      <mass value="12.0"/>
+      <inertia ixx="0.4225" ixy="0.0" ixz="0.0" iyy="0.7025" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.8 0.6 0.25"/>
+      </geometry>
+      <material name="chassis_blue">
+        <color rgba="0.10 0.30 0.80 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.8 0.6 0.25"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_wheel">
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.005925" ixy="0.0" ixz="0.0" iyy="0.01125" iyz="0.0" izz="0.005925"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.15"/>
+      </geometry>
+      <material name="rubber">
+        <color rgba="0.03 0.03 0.03 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.15"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin rpy="0 0 0" xyz="0 0.25 -0.145"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <link name="right_wheel">
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.005925" ixy="0.0" ixz="0.0" iyy="0.01125" iyz="0.0" izz="0.005925"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.15"/>
+      </geometry>
+      <material name="rubber">
+        <color rgba="0.03 0.03 0.03 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.15"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin rpy="0 0 0" xyz="0 -0.25 -0.145"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- +X is the front of the robot. -->
+  <link name="rear_ball_caster">
+    <inertial>
+      <mass value="0.25"/>
+      <inertia ixx="0.00036" ixy="0.0" ixz="0.0" iyy="0.00036" iyz="0.0" izz="0.00036"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <sphere radius="0.06"/>
+      </geometry>
+      <material name="caster_material">
+        <color rgba="0.12 0.12 0.12 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.06"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_ball_caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_ball_caster"/>
+    <origin rpy="0 0 0" xyz="-0.3 0 -0.235"/>
+  </joint>
+
+  <gazebo reference="base_link">
+    <mu1>0.8</mu1>
+    <mu2>0.8</mu2>
+  </gazebo>
+  <gazebo reference="left_wheel">
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+  </gazebo>
+  <gazebo reference="right_wheel">
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+  </gazebo>
+  <gazebo reference="rear_ball_caster">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+  </gazebo>
+</robot>
